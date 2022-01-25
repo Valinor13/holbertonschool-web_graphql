@@ -3,7 +3,7 @@ const {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-  GraphQLInt
+  GraphQLInt,
 } = require('graphql');
 
 const tasks = [
@@ -30,29 +30,35 @@ const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: () => ({
     type: TaskType,
-    args: any,
-    resolve: (parent, args) => (_.find(tasks, { id: args.fields.id })),
+    args: {
+      id: {
+        type: GraphQLString
+      }
+    },
+    resolve: (parent, args) => tasks.find(task => task.id === args.id)
+  })
+})
+
+const TaskType = new GraphQLObjectType({
+  name: 'Task',
+  fields: () => ({
+    id: {
+      type: GraphQLString
+    },
+    title: {
+      type: GraphQLString
+    },
+    weight: {
+      type: GraphQLInt
+    },
+    description: {
+      type: GraphQLString
+    }
   })
 })
 
 const schema = new GraphQLSchema({
-  TaskType: new GraphQLObjectType({
-    name: 'Task',
-    fields: () => ({
-      id: {
-        type: GraphQLString
-      },
-      title: {
-        type: GraphQLString
-      },
-      weight: {
-        type: GraphQLInt
-      },
-      description: {
-        type: GraphQLString
-      }
-    })
-  })
+  query: RootQuery
 })
 
 module.exports = ({ schema }, GraphQLSchema);
