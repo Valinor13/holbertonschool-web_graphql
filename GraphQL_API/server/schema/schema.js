@@ -29,19 +29,21 @@ const tasks = [
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: () => ({
-    type: TaskType,
-    args: {
-      id: {
-        type: GraphQLString
-      }
-    },
-    resolve: (parent, args) => tasks.find(task => task.id === args.id)
+    Task: {
+      type: TaskType,
+      args: {
+        id: {
+          type: GraphQLString
+        }
+      },
+      resolve: (parent, args) => _.find(tasks, { id: args.id })
+    }
   })
 })
 
 const TaskType = new GraphQLObjectType({
   name: 'Task',
-  fields: () => ({
+  fields: {
     id: {
       type: GraphQLString
     },
@@ -54,11 +56,11 @@ const TaskType = new GraphQLObjectType({
     description: {
       type: GraphQLString
     }
-  })
+  }
 })
 
 const schema = new GraphQLSchema({
   query: RootQuery
 })
 
-module.exports = ({ schema }, GraphQLSchema);
+module.exports = schema;
