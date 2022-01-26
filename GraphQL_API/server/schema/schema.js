@@ -4,7 +4,8 @@ const {
   GraphQLObjectType,
   GraphQLString,
   GraphQLInt,
-  GraphQLID
+  GraphQLID,
+  GraphQLList
 } = require('graphql');
 
 const projects = [
@@ -15,6 +16,7 @@ const projects = [
 const tasks = [
   {
     id: '1',
+    projectId: '1',
     title: 'Create your first webpage',
     weight: 1,
     description: 'Create your first HTML file 0 - index.html with: -Add the ' +
@@ -23,6 +25,7 @@ const tasks = [
   },
   {
     id: '2',
+    projectId: '1',
     title: 'Create your first webpage',
     weight: 1,
     description: 'Copy the content of 0-index.html into 1-index.html ' +
@@ -57,7 +60,7 @@ const RootQuery = new GraphQLObjectType({
 
 const ProjectType = new GraphQLObjectType({
   name: 'Project',
-  fields: {
+  fields: () => ({
     id: {
       type: GraphQLID
     },
@@ -69,15 +72,23 @@ const ProjectType = new GraphQLObjectType({
     },
     description: {
       type: GraphQLString
+    },
+    tasks: {
+      type: new GraphQLList(TaskType),
+      resolve: (parent, args) => _.filter(tasks, { projectId: parent.id })
     }
-  }
+  })
 })
 
 const TaskType = new GraphQLObjectType({
   name: 'Task',
-  fields: {
+  fields: () => ({
     id: {
       type: GraphQLID
+    },
+    project: {
+      type: TaskType,
+      resovle: (parent, args) => _.find(projects, { id: parent.projectId })
     },
     title: {
       type: GraphQLString
@@ -88,7 +99,7 @@ const TaskType = new GraphQLObjectType({
     description: {
       type: GraphQLString
     }
-  }
+  })
 })
 
 const schema = new GraphQLSchema({
