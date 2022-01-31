@@ -1,3 +1,5 @@
+const Project = require('../models/project');
+const Task = require('../models/task');
 const _ = require('lodash');
 const {
   GraphQLSchema,
@@ -5,7 +7,8 @@ const {
   GraphQLString,
   GraphQLInt,
   GraphQLID,
-  GraphQLList
+  GraphQLList,
+  GraphQLNonNull
 } = require('graphql');
 
 const projects = [
@@ -40,18 +43,14 @@ const RootQuery = new GraphQLObjectType({
     Task: {
       type: TaskType,
       args: {
-        id: {
-          type: GraphQLID
-        }
+        id: { type: GraphQLID }
       },
       resolve: (parent, args) => _.find(tasks, { id: args.id })
     },
     Project: {
       type: ProjectType,
       args: {
-        id: {
-          type: GraphQLID
-        }
+        id: { type: GraphQLID }
       },
       resolve: (parent, args) => _.find(projects, { id: args.id })
     },
@@ -110,8 +109,55 @@ const TaskType = new GraphQLObjectType({
   })
 })
 
-const schema = new GraphQLSchema({
-  query: RootQuery
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: () => ({
+    addProject: {
+      type: ProjectType,
+      args: {
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve: async (parent, args) => {
+        let project = new Project({
+          title: args.title,
+          weight: args.weight,
+          description: args.description
+        });
+        try {
+          return await project.save();
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    },
+    addTask: {
+      type: TaskType,
+      args: {
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve: async (parent, args) => {
+        let task = new Task({
+          title: args.title,
+          weight: args.weight,
+          description: args.description
+        });
+        try {
+          return await task.save();
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    }
+  })
 })
+
+const schema = new GraphQLSchema({
+  query: RootQuery,
+  mutation: Mutation
+});
 
 module.exports = schema;
