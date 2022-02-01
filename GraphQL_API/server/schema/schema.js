@@ -67,7 +67,7 @@ const TaskType = new GraphQLObjectType({
     id: {
       type: GraphQLID
     },
-    project: {
+    projectId: {
       type: TaskType,
       resovle: (parent, args) => Project.findById(parent.projectId)
     },
@@ -216,7 +216,7 @@ const schema = new GraphQLSchema({
 //     id: {
 //       type: GraphQLID
 //     },
-//     project: {
+//     projectId: {
 //       type: TaskType,
 //       resovle: (parent, args) => _.find(projects, { id: parent.projectId })
 //     },
